@@ -1,0 +1,27 @@
+{
+  "contexts": {
+    "mcu": {
+      "mcu_arch": "rv32imacxw",
+      "mcu_abi": "ilp32",
+      "project_name": "ch32l103",
+      "mcu_series": "ch32l103",
+      "mcu_macro": "CH32L103",
+      "startup_file": "startup_ch32l103.S"
+    },
+    "linker": {
+      "flash_size": 64,
+      "ram_size": 20,
+      "stack_size": 2024
+    }
+  },
+  "entries": [
+    {
+      "template": "global/CMakeLists.txt.tera",
+      "context_ref": "mcu"
+    },
+    {
+      "template": "ch32l103/Platform/Link.ld.tera",
+      "context_ref": "linker"
+    }
+  ]
+}

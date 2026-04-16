@@ -1,0 +1,27 @@
+{
+  "contexts": {
+    "mcu": {
+      "mcu_arch": "rv32imacxw",
+      "mcu_abi": "ilp32",
+      "project_name": "ch32v20x",
+      "mcu_series": "ch32v20x",
+      "mcu_macro": "CH32V20x_D6",
+      "startup_file": "startup_ch32v20x_D6.S"
+    },
+    "linker": {
+      "flash_size": 64,
+      "ram_size": 20,
+      "stack_size": 2024
+    }
+  },
+  "entries": [
+    {
+      "template": "global/CMakeLists.txt.tera",
+      "context_ref": "mcu"
+    },
+    {
+      "template": "ch32v20x/Platform/Link.ld.tera",
+      "context_ref": "linker"
+    }
+  ]
+}

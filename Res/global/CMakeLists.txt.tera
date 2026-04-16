@@ -1,0 +1,110 @@
+cmake_minimum_required(VERSION 3.22)
+
+set(CMAKE_TOOLCHAIN_FILE "Core/cmake/toolchain.cmake" CACHE FILEPATH "Default toolchain file")
+
+set(PROJECT_NAME "{{ project_name }}")
+project(${PROJECT_NAME} C ASM)
+include("${CMAKE_CURRENT_SOURCE_DIR}/Core/cmake/core_sources.cmake")
+
+# For single-config generators (e.g. Ninja), default to Debug unless user sets one.
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+endif()
+
+set(TARGET_ARTIFACT "${PROJECT_NAME}.elf")
+set(MAP_FILE "${PROJECT_NAME}.map")
+set(HEX_FILE "${PROJECT_NAME}.hex")
+set(LST_FILE "${PROJECT_NAME}.lst")
+set(BIN_FILE "${PROJECT_NAME}.bin")
+
+set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/Platform/Link.ld)
+set(STARTUP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Platform/{{ startup_file }})
+set(MARCH "{{ mcu_arch }}" CACHE STRING "RISC-V arch")
+set(MABI "{{ mcu_abi }}" CACHE STRING "RISC-V ABI")
+set(DEBUG_COMPILE_FLAGS -Og -g3)
+set(RELEASE_COMPILE_FLAGS -Os -g0)
+set(COMMON_DEFINES
+        {{ mcu_macro }}
+)
+
+
+set(USER_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/User/Inc"
+)
+
+set(USER_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/debug.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/main.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/{{ mcu_series }}_it.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/system_{{ mcu_series }}.c"
+)
+
+add_executable(${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}" SUFFIX ".elf")
+
+target_sources(${PROJECT_NAME} PRIVATE
+        ${USER_SOURCES}
+        ${STARTUP_FILE}
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+        ${USER_INCLUDE_DIRS}
+)
+target_include_directories(core PRIVATE
+        ${USER_INCLUDE_DIRS}
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE core)
+target_compile_definitions(${PROJECT_NAME} PRIVATE ${COMMON_DEFINES})
+target_compile_definitions(core PRIVATE ${COMMON_DEFINES})
+
+target_compile_options(${PROJECT_NAME} PRIVATE
+        -march=${MARCH}
+        -mabi=${MABI}
+        -ffunction-sections
+        -fdata-sections
+        -fno-common
+        -Wall
+        -Wextra
+        $<$<CONFIG:Debug>:${DEBUG_COMPILE_FLAGS}>
+        $<$<NOT:$<CONFIG:Debug>>:${RELEASE_COMPILE_FLAGS}>
+)
+target_compile_options(core PRIVATE
+        -march=${MARCH}
+        -mabi=${MABI}
+        -ffunction-sections
+        -fdata-sections
+        -fno-common
+        -Wall
+        -Wextra
+        $<$<CONFIG:Debug>:${DEBUG_COMPILE_FLAGS}>
+        $<$<NOT:$<CONFIG:Debug>>:${RELEASE_COMPILE_FLAGS}>
+)
+
+target_link_options(${PROJECT_NAME} PRIVATE
+        -march=${MARCH}
+        -mabi=${MABI}
+        -nostartfiles
+        "--specs=nano.specs"
+        "--specs=nosys.specs"
+        "-T${LINKER_SCRIPT}"
+        "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${MAP_FILE}"
+        "-Wl,--gc-sections"
+        "-Wl,--print-memory-usage"
+)
+
+if (CMAKE_SIZE)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E chdir "${CMAKE_CURRENT_BINARY_DIR}" ${CMAKE_SIZE} "${TARGET_ARTIFACT}"
+            COMMENT "Size report"
+    )
+endif ()
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_OBJCOPY} -O ihex "$<TARGET_FILE:${PROJECT_NAME}>" "${CMAKE_CURRENT_BINARY_DIR}/${HEX_FILE}"
+        COMMAND ${CMAKE_OBJCOPY} -O binary "$<TARGET_FILE:${PROJECT_NAME}>" "${CMAKE_CURRENT_BINARY_DIR}/${BIN_FILE}"
+        COMMENT "Generate ${TARGET_ARTIFACT}, ${MAP_FILE}, ${HEX_FILE}, ${LST_FILE}, ${BIN_FILE}"
+)
+
+add_custom_target(${PROJECT_NAME}_artifacts ALL
+        DEPENDS ${PROJECT_NAME}
+        COMMENT "Build ${TARGET_ARTIFACT} and derived artifacts"
+)

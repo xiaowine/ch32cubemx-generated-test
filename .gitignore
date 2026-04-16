@@ -1,0 +1,4 @@
+/target
+
+# 项目排除路径
+/output/
