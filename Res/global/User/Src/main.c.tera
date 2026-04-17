@@ -1,4 +1,4 @@
-#include "ch32v20x.h"
+#include "{{ mcu_series }}.h"
 
 void SystemClock_Config(void);
 

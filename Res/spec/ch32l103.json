@@ -12,16 +12,17 @@
       "flash_size": 64,
       "ram_size": 20,
       "stack_size": 2024
+    },
+    "clock": {
+      "clock_source": "HSE",
+      "hse_freq_mhz": 8,
+      "hsi_freq_mhz": 8,
+      "pll_mul": 12
     }
   },
   "entries": [
-    {
-      "template": "global/CMakeLists.txt.tera",
-      "context_ref": "mcu"
-    },
-    {
-      "template": "ch32l103/Platform/Link.ld.tera",
-      "context_ref": "linker"
-    }
+    "global/CMakeLists.txt.tera",
+    "ch32l103/Platform/Link.ld.tera",
+    "ch32l103/User/Src/main.c.tera"
   ]
 }

@@ -28,7 +28,7 @@ extern "C" {
 
 /* DEBUG UATR Definition */
 #ifndef DEBUG
-#define DEBUG   DEBUG_UART4
+#define DEBUG   DEBUG_UART1
 #endif
 
 extern uint32_t OPA_Trim;

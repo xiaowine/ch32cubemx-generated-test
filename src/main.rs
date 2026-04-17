@@ -7,16 +7,10 @@ use tera::{Context, Tera};
 use walkdir::WalkDir;
 
 #[derive(Debug, Deserialize)]
-struct SpecEntry {
-    template: String,
-    context_ref: String,
-}
-
-#[derive(Debug, Deserialize)]
 struct SpecDoc {
     #[serde(default)]
     contexts: HashMap<String, Value>,
-    entries: Vec<SpecEntry>,
+    entries: Vec<String>,
 }
 
 fn files_by_extension(dir: &Path, include_extension: bool) -> Vec<PathBuf> {
@@ -175,27 +169,51 @@ fn render_templates_from_entries(
     res_dir: &Path,
     output_root: &Path,
     model_name: &str,
-    entries: &[SpecEntry],
-    contexts: &HashMap<String, Value>,
+    entries: &[String],
+    context_value: &Value,
 ) -> Result<(), String> {
     for entry in entries {
-        let context_value = contexts.get(&entry.context_ref).ok_or_else(|| {
-            format!(
-                "Context '{}' not found for template '{}'",
-                entry.context_ref, entry.template
-            )
-        })?;
-
         render_one_template(
             res_dir,
             output_root,
             model_name,
-            &entry.template,
+            entry,
             context_value,
         )?;
     }
 
     Ok(())
+}
+
+fn merge_contexts_flattened(contexts: &HashMap<String, Value>) -> Result<Value, String> {
+    let mut merged = serde_json::Map::new();
+
+    let mut names: Vec<&str> = contexts.keys().map(String::as_str).collect();
+    names.sort_unstable();
+
+    for name in names {
+        let context_value = contexts
+            .get(name)
+            .ok_or_else(|| format!("Context '{}' is missing", name))?;
+        let context_obj = context_value
+            .as_object()
+            .ok_or_else(|| format!("Context '{}' must be a JSON object", name))?;
+
+        for (key, value) in context_obj {
+            if let Some(existing) = merged.get(key) {
+                if existing != value {
+                    return Err(format!(
+                        "Conflicting context key '{}' between merged contexts",
+                        key
+                    ));
+                }
+                continue;
+            }
+            merged.insert(key.clone(), value.clone());
+        }
+    }
+
+    Ok(Value::Object(merged))
 }
 
 fn process_copy_stage(src_dir: &Path, dst_dir: &Path) -> Result<(), String> {
@@ -228,6 +246,7 @@ fn run() -> Result<(), String> {
     }
 
     let model_spec = load_spec(&model_spec_path)?;
+    let merged_context = merge_contexts_flattened(&model_spec.contexts)?;
 
     println!("Build model: {}", model_name);
 
@@ -241,7 +260,7 @@ fn run() -> Result<(), String> {
         output_root,
         model_name,
         &model_spec.entries,
-        &model_spec.contexts,
+        &merged_context,
     )?;
 
     Ok(())
