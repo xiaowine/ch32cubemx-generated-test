@@ -112,10 +112,6 @@ void USART_Init(USART_TypeDef *USARTx, USART_InitTypeDef *USART_InitStruct)
     uint32_t          usartxbase = 0;
     RCC_ClocksTypeDef RCC_ClocksStatus;
 
-    if(USART_InitStruct->USART_HardwareFlowControl != USART_HardwareFlowControl_None)
-    {
-    }
-
     usartxbase = (uint32_t)USARTx;
     tmpreg = USARTx->CTLR2;
     tmpreg &= CTLR2_STOP_CLEAR_Mask;

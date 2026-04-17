@@ -6,8 +6,8 @@
       "startup_file": "startup_ch32l103.S"
     },
     "clock": {
-      "clock_source": "HSI",
-      "pll_source": "RCC_PLLSource_HSI_Div2",
+      "clock_source": "HSE",
+      "pll_source": "RCC_PLLSource_HSE_Div1",
       "hse_freq_mhz": 8,
       "pll_mul": 12
     },
@@ -15,6 +15,24 @@
       "flash_size": 64,
       "ram_size": 20,
       "stack_size": 2024
-    }
+    },
+    "usart": [
+      {
+        "USART1": {
+          "tx_pin": "GPIO_Pin_9",
+          "rx_pin": "GPIO_Pin_10",
+          "gpio_port": "GPIOA",
+          "baud_rate": 115200,
+          "word_length": 8,
+          "stop_bits": 1,
+          "parity": null,
+          "hardware_flow_control": {
+            "cts": false,
+            "rts": false
+          },
+          "remap": null
+        }
+      }
+    ]
   }
 }

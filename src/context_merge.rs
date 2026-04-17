@@ -13,22 +13,33 @@ pub fn merge_contexts_flattened(contexts: &HashMap<String, Value>) -> Result<Val
         let context_value = contexts
             .get(name)
             .ok_or_else(|| format!("Context '{}' is missing", name))?;
-        let context_obj = context_value
-            .as_object()
-            .ok_or_else(|| format!("Context '{}' must be a JSON object", name))?;
-
-        for (key, value) in context_obj {
-            if let Some(existing) = merged.get(key) {
-                if existing != value {
-                    return Err(format!(
-                        "Conflicting context key '{}' between merged contexts",
-                        key
-                    ));
+        if let Some(context_obj) = context_value.as_object() {
+            for (key, value) in context_obj {
+                if let Some(existing) = merged.get(key) {
+                    if existing != value {
+                        return Err(format!(
+                            "Conflicting context key '{}' between merged contexts",
+                            key
+                        ));
+                    }
+                    continue;
                 }
-                continue;
+                merged.insert(key.clone(), value.clone());
             }
-            merged.insert(key.clone(), value.clone());
+            continue;
         }
+
+        // 非对象 context 按 context 名写入顶层，便于传递数组/标量配置。
+        if let Some(existing) = merged.get(name) {
+            if existing != context_value {
+                return Err(format!(
+                    "Conflicting non-object context key '{}' between merged contexts",
+                    name
+                ));
+            }
+            continue;
+        }
+        merged.insert(name.to_string(), context_value.clone());
     }
 
     Ok(Value::Object(merged))
@@ -50,4 +61,3 @@ pub fn merge_flat_objects_override(base: &Value, overlay: &Value) -> Result<Valu
 
     Ok(Value::Object(base_obj))
 }
-
