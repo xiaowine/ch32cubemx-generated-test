@@ -5,12 +5,11 @@
       "mcu_abi": "ilp32",
       "mcu_series": "ch32v20x",
       "mcu_macro": "CH32V20x_D6"
-    },
-
+    }
   },
   "entries": [
     "global/CMakeLists.txt.tera",
     "ch32v20x/Platform/Link.ld.tera",
-    "ch32l103/User/Src/main.c.tera"
+    "global/User/Src/main.c.tera"
   ]
 }

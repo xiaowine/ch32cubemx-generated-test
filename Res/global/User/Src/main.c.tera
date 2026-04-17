@@ -1,6 +1,22 @@
 #include "{{ mcu_series }}.h"
 
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN PV */
+
+/* USER CODE END PV */
+
 void SystemClock_Config(void);
+
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
 
 /*********************************************************************
  * @fn      main
@@ -11,11 +27,26 @@ void SystemClock_Config(void);
  */
 int main(void)
 {
+    /* USER CODE BEGIN 1 */
+
+    /* USER CODE END 1 */
+
     SystemClock_Config();
+    SystemCoreClockUpdate();
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
     Delay_Init();
+    USART_Printf_Init(2000000);
+    printf("SystemClk:%ld\r\n", SystemCoreClock);
+
+    /* USER CODE BEGIN 2 */
+
+    /* USER CODE END 2 */
+
     while (1)
     {
+        /* USER CODE BEGIN WHILE */
+
+        /* USER CODE END WHILE */
     }
 }
 
@@ -25,6 +56,9 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
+    /* USER CODE BEGIN SysInit */
+
+    /* USER CODE END SysInit */
     RCC_DeInit();
 {%- if clock_source | lower == "hse" %}
     RCC_HSEConfig(RCC_HSE_ON);
@@ -56,4 +90,8 @@ void SystemClock_Config(void)
     while (RCC_GetSYSCLKSource() != 0x08)
     {
     }
+
+    /* USER CODE BEGIN SysClockEnd */
+
+    /* USER CODE END SysClockEnd */
 }

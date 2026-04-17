@@ -10,6 +10,6 @@
   "entries": [
     "global/CMakeLists.txt.tera",
     "ch32l103/Platform/Link.ld.tera",
-    "ch32l103/User/Src/main.c.tera"
+    "global/User/Src/main.c.tera"
   ]
 }
