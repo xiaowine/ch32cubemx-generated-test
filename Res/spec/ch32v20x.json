@@ -3,22 +3,10 @@
     "mcu": {
       "mcu_arch": "rv32imacxw",
       "mcu_abi": "ilp32",
-      "project_name": "ch32v20x",
       "mcu_series": "ch32v20x",
-      "mcu_macro": "CH32V20x_D6",
-      "startup_file": "startup_ch32v20x_D6.S"
+      "mcu_macro": "CH32V20x_D6"
     },
-    "linker": {
-      "flash_size": 64,
-      "ram_size": 20,
-      "stack_size": 2024
-    },
-    "clock": {
-      "clock_source": "HSE",
-      "hse_freq_mhz": 8,
-      "hsi_freq_mhz": 8,
-      "pll_mul": 12
-    }
+
   },
   "entries": [
     "global/CMakeLists.txt.tera",

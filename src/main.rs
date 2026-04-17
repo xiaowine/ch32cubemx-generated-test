@@ -13,6 +13,13 @@ struct SpecDoc {
     entries: Vec<String>,
 }
 
+#[derive(Debug, Deserialize)]
+struct RuntimeDoc {
+    model_name: String,
+    #[serde(default)]
+    contexts: HashMap<String, Value>,
+}
+
 fn files_by_extension(dir: &Path, include_extension: bool) -> Vec<PathBuf> {
     const EXTENSION: &str = "tera";
     let mut files = Vec::new();
@@ -69,6 +76,18 @@ fn load_spec(spec_path: &Path) -> Result<SpecDoc, String> {
         format!(
             "Failed to parse spec {} with new schema: {}",
             spec_path.display(),
+            e
+        )
+    })
+}
+
+fn load_runtime(runtime_path: &Path) -> Result<RuntimeDoc, String> {
+    let raw = fs::read_to_string(runtime_path)
+        .map_err(|e| format!("Failed to read runtime config {}: {}", runtime_path.display(), e))?;
+    serde_json::from_str(&raw).map_err(|e| {
+        format!(
+            "Failed to parse runtime config {}: {}",
+            runtime_path.display(),
             e
         )
     })
@@ -216,6 +235,22 @@ fn merge_contexts_flattened(contexts: &HashMap<String, Value>) -> Result<Value, 
     Ok(Value::Object(merged))
 }
 
+fn merge_flat_objects_override(base: &Value, overlay: &Value) -> Result<Value, String> {
+    let mut base_obj = base
+        .as_object()
+        .ok_or_else(|| "Base context must be a JSON object".to_string())?
+        .clone();
+    let overlay_obj = overlay
+        .as_object()
+        .ok_or_else(|| "Overlay context must be a JSON object".to_string())?;
+
+    for (key, value) in overlay_obj {
+        base_obj.insert(key.clone(), value.clone());
+    }
+
+    Ok(Value::Object(base_obj))
+}
+
 fn process_copy_stage(src_dir: &Path, dst_dir: &Path) -> Result<(), String> {
     if !src_dir.exists() {
         return Ok(());
@@ -226,12 +261,15 @@ fn process_copy_stage(src_dir: &Path, dst_dir: &Path) -> Result<(), String> {
 }
 
 fn run() -> Result<(), String> {
-    let model_name = "ch32l103";
     let res_dir = Path::new("./Res");
+    let runtime_path = res_dir.join("runtime.json");
     let global_dir = res_dir.join("global");
+    let output_root = Path::new("./output");
+
+    let runtime_doc = load_runtime(&runtime_path)?;
+    let model_name = &runtime_doc.model_name;
     let model_spec_path = res_dir.join("spec").join(format!("{model_name}.json"));
     let model_dir = res_dir.join(model_name);
-    let output_root = Path::new("./output");
 
     fs::create_dir_all(output_root).map_err(|e| {
         format!(
@@ -246,7 +284,9 @@ fn run() -> Result<(), String> {
     }
 
     let model_spec = load_spec(&model_spec_path)?;
-    let merged_context = merge_contexts_flattened(&model_spec.contexts)?;
+    let static_context = merge_contexts_flattened(&model_spec.contexts)?;
+    let runtime_context = merge_contexts_flattened(&runtime_doc.contexts)?;
+    let merged_context = merge_flat_objects_override(&static_context, &runtime_context)?;
 
     println!("Build model: {}", model_name);
 
