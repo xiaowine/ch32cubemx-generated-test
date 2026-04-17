@@ -9,7 +9,8 @@
   },
   "entries": [
     "global/CMakeLists.txt.tera",
+    "global/User/Src/main.c.tera",
     "ch32l103/Platform/Link.ld.tera",
-    "global/User/Src/main.c.tera"
+    "ch32l103/User/Src/system.c.tera"
   ]
 }

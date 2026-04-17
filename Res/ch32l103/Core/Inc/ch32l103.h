@@ -107,7 +107,7 @@ typedef enum IRQn
 
 #include <stdint.h>
 #include "core_riscv.h"
-#include "system_ch32l103.h"
+#include "system.h"
 
 
 #define HSI_Value             HSI_VALUE

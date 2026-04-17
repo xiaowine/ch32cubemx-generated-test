@@ -36,7 +36,7 @@ set(USER_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/debug.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/main.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/{{ mcu_series }}_it.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/system_{{ mcu_series }}.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/system.c"
 )
 
 add_executable(${PROJECT_NAME})

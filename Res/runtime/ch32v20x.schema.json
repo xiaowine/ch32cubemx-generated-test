@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "model_name",
+    "contexts"
+  ],
+  "properties": {
+    "model_name": {
+      "type": "string",
+      "const": "ch32v20x"
+    },
+    "contexts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mcu",
+        "clock",
+        "linker"
+      ],
+      "properties": {
+        "mcu": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "project_name",
+            "startup_file"
+          ],
+          "properties": {
+            "project_name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "startup_file": {
+              "type": "string",
+              "enum": [
+                "startup_ch32v20x_D6.S",
+                "startup_ch32v20x_D8.S",
+                "startup_ch32v20x_D8W.S"
+              ]
+            }
+          }
+        },
+        "clock": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "clock_source",
+            "pll_source",
+            "hse_freq_mhz",
+            "pll_mul"
+          ],
+          "properties": {
+            "clock_source": {
+              "type": "string",
+              "enum": [
+                "HSE",
+                "HSI"
+              ]
+            },
+            "pll_source": {
+              "type": "string",
+              "enum": [
+                "RCC_PLLSource_HSE_Div1",
+                "RCC_PLLSource_HSE_Div2",
+                "RCC_PLLSource_HSI_Div2"
+              ]
+            },
+            "hse_freq_mhz": {
+              "type": "integer",
+              "minimum": 3,
+              "maximum": 25
+            },
+            "pll_mul": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 18
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "clock_source": {
+                    "const": "HSE"
+                  }
+                },
+                "required": [
+                  "clock_source"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "pll_source": {
+                    "enum": [
+                      "RCC_PLLSource_HSE_Div1",
+                      "RCC_PLLSource_HSE_Div2"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "clock_source": {
+                    "const": "HSI"
+                  }
+                },
+                "required": [
+                  "clock_source"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "pll_source": {
+                    "const": "RCC_PLLSource_HSI_Div2"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "linker": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "flash_size",
+            "ram_size",
+            "stack_size"
+          ],
+          "properties": {
+            "flash_size": {
+              "type": "integer",
+              "minimum": 16,
+              "maximum": 1024
+            },
+            "ram_size": {
+              "type": "integer",
+              "minimum": 4,
+              "maximum": 256
+            },
+            "stack_size": {
+              "type": "integer",
+              "minimum": 128,
+              "maximum": 65536
+            }
+          }
+        }
+      }
+    }
+  }
+}

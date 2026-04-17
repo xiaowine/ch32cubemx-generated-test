@@ -6,11 +6,10 @@
       "startup_file": "startup_ch32l103.S"
     },
     "clock": {
-      "clock_source": "HSE",
+      "clock_source": "HSI",
+      "pll_source": "RCC_PLLSource_HSI_Div2",
       "hse_freq_mhz": 8,
-      "hsi_freq_mhz": 8,
-      "pll_mul": 12,
-      "sysclk_mhz": 96
+      "pll_mul": 12
     },
     "linker": {
       "flash_size": 64,

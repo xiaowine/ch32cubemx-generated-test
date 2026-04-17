@@ -1,17 +1,16 @@
 /********************************** (C) COPYRIGHT *******************************
- * File Name          : system_ch32l103.h
+ * File Name          : system_ch32v20x.h
  * Author             : WCH
  * Version            : V1.0.0
- * Date               : 2023/07/08
- * Description        : CH32L103 Device Peripheral Access Layer System Header File.
+ * Date               : 2021/06/06
+ * Description        : CH32V20x Device Peripheral Access Layer System Header File.
 *********************************************************************************
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * Attention: This software (modified or not) and binary are used for 
 * microcontroller manufactured by Nanjing Qinheng Microelectronics.
 *******************************************************************************/
-#ifndef __SYSTEM_ch32l103_H
-#define __SYSTEM_ch32l103_H
-#include <stdint.h>
+#ifndef __SYSTEM_ch32v20x_H
+#define __SYSTEM_ch32v20x_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,10 +19,11 @@ extern "C" {
 extern uint32_t SystemCoreClock; /* System Clock Frequency (Core Clock) */
 
 /* System_Exported_Functions */
-extern void SystemCoreClockUpdate(void);
+void SystemCoreClockUpdate(void);
+void SystemClockConfig(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /*__CH32V20x_SYSTEM_H */

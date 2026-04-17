@@ -8,8 +8,9 @@
     }
   },
   "entries": [
+    "global/User/Src/main.c.tera",
     "global/CMakeLists.txt.tera",
     "ch32v20x/Platform/Link.ld.tera",
-    "global/User/Src/main.c.tera"
+    "ch32v20x/User/Src/system.c.tera"
   ]
 }
