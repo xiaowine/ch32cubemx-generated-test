@@ -19,6 +19,14 @@
     {
       "template": "global/User/Src/usart.c.tera",
       "when": "usart"
+    },
+    {
+      "template": "global/User/Inc/i2c.h.tera",
+      "when": "i2c"
+    },
+    {
+      "template": "global/User/Src/i2c.c.tera",
+      "when": "i2c"
     }
   ]
 }

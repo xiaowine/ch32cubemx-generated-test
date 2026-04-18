@@ -1,9 +1,10 @@
 #include "usart.h"
 #include "ch32l103.h"
+
 {% if usart is defined and usart | length > 0 -%}
 {%- for usart_item in usart -%}
 {%- for usart_name, cfg in usart_item -%}
-void {{ usart_name | replace(from="USART", to="UART") }}_UART_Init(void)
+void {{ usart_name | replace(from="USART", to="UART") }}_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure = {0};
     USART_InitTypeDef USART_InitStructure = {0};
@@ -11,23 +12,37 @@ void {{ usart_name | replace(from="USART", to="UART") }}_UART_Init(void)
     GPIO_PinRemapConfig({{ cfg.remap }}, ENABLE);
 {%- endif %}
 {%- if usart_name == "USART1" %}
-    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ usart_name }} | RCC_PB2Periph_{{ cfg.gpio_port }}, ENABLE);
+{%- if cfg.tx_pin and cfg.rx_pin and cfg.tx_port == cfg.rx_port %}
+    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ usart_name }} | RCC_PB2Periph_{{ cfg.tx_port }}, ENABLE);
+{%- elif cfg.tx_pin %}
+    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ usart_name }} | RCC_PB2Periph_{{ cfg.tx_port }}, ENABLE);
+{%- if cfg.rx_pin %}
+    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ cfg.rx_port }}, ENABLE);
+{%- endif %}
+{%- else %}
+    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ usart_name }} | RCC_PB2Periph_{{ cfg.rx_port }}, ENABLE);
+{%- endif %}
 {%- else %}
     RCC_PB1PeriphClockCmd(RCC_PB1Periph_{{ usart_name }}, ENABLE);
-    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ cfg.gpio_port }}, ENABLE);
+{%- if cfg.tx_pin %}
+    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ cfg.tx_port }}, ENABLE);
+{%- endif %}
+{%- if cfg.rx_pin and (not cfg.tx_pin or cfg.rx_port != cfg.tx_port) %}
+    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ cfg.rx_port }}, ENABLE);
+{%- endif %}
 {%- endif %}
 
 {%- if cfg.tx_pin %}
     GPIO_InitStructure.GPIO_Pin = {{ cfg.tx_pin }};
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init({{ cfg.gpio_port }}, &GPIO_InitStructure);
+    GPIO_Init({{ cfg.tx_port }}, &GPIO_InitStructure);
 {%- endif %}
 
 {%- if cfg.rx_pin %}
     GPIO_InitStructure.GPIO_Pin = {{ cfg.rx_pin }};
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-    GPIO_Init({{ cfg.gpio_port }}, &GPIO_InitStructure);
+    GPIO_Init({{ cfg.rx_port }}, &GPIO_InitStructure);
 {%- endif %}
 
     USART_InitStructure.USART_BaudRate = {{ cfg.baud_rate }};

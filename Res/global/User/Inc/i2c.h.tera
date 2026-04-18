@@ -1,0 +1,12 @@
+#ifndef I2C_H
+#define I2C_H
+
+{% if i2c is defined and i2c | length > 0 -%}
+{%- for i2c_item in i2c -%}
+{%- for i2c_name, cfg in i2c_item -%}
+void {{ i2c_name }}_Init(void);
+{%- endfor %}
+{%- endfor %}
+{%- endif %}
+
+#endif //I2C_H

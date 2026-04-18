@@ -40,6 +40,9 @@ set(USER_SOURCES
 {%- if usart is defined and usart | length > 0 %}
         "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/usart.c"
 {%- endif %}
+{%- if i2c is defined and i2c | length > 0 %}
+        "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/i2c.c"
+{%- endif %}
 )
 
 add_executable(${PROJECT_NAME})

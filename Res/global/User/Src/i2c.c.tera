@@ -1,0 +1,54 @@
+#include "i2c.h"
+#include "ch32l103.h"
+
+{% if i2c is defined and i2c | length > 0 -%}
+{%- for i2c_item in i2c -%}
+{%- for i2c_name, cfg in i2c_item -%}
+void {{ i2c_name }}_Init(void)
+{
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+    I2C_InitTypeDef I2C_InitStructure = {0};
+    RCC_PB1PeriphClockCmd(RCC_PB1Periph_{{ i2c_name }}, ENABLE);
+    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ cfg.scl_port }}, ENABLE);
+{%- if cfg.sda_port != cfg.scl_port %}
+    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ cfg.sda_port }}, ENABLE);
+{%- endif %}
+{%- if cfg.smba_port != cfg.scl_port and cfg.smba_port != cfg.sda_port %}
+    RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ cfg.smba_port }}, ENABLE);
+{%- endif %}
+{%- if cfg.remap %}
+    GPIO_PinRemapConfig({{ cfg.remap }}, ENABLE);
+{%- endif %}
+
+    GPIO_InitStructure.GPIO_Pin = {{ cfg.scl_pin }};
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init({{ cfg.scl_port }}, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Pin = {{ cfg.sda_pin }};
+    GPIO_Init({{ cfg.sda_port }}, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Pin = {{ cfg.smba_pin }};
+    GPIO_Init({{ cfg.smba_port }}, &GPIO_InitStructure);
+
+    I2C_InitStructure.I2C_ClockSpeed = {{ cfg.clock_speed_khz * 1000 }};
+    I2C_InitStructure.I2C_Mode = {{ cfg.mode }};
+    I2C_InitStructure.I2C_DutyCycle = {{ cfg.duty_cycle }};
+    I2C_InitStructure.I2C_OwnAddress1 = {{ cfg.own_address }};
+{%- if cfg.ack %}
+    I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
+{%- else %}
+    I2C_InitStructure.I2C_Ack = I2C_Ack_Disable;
+{%- endif %}
+{%- if cfg.acknowledged_address == 10 %}
+    I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_10bit;
+{%- else %}
+    I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+{%- endif %}
+    I2C_Init({{ i2c_name }}, &I2C_InitStructure);
+    I2C_Cmd({{ i2c_name }}, ENABLE);
+}
+
+{%- endfor -%}
+{%- endfor -%}
+{%- endif %}

@@ -187,7 +187,8 @@
                 "required": [
                   "tx_pin",
                   "rx_pin",
-                  "gpio_port",
+                  "tx_port",
+                  "rx_port",
                   "baud_rate",
                   "word_length",
                   "stop_bits",
@@ -210,8 +211,13 @@
                       "null"
                     ]
                   },
-                  "gpio_port": {
-                    "description": "GPIO 端口名，例如 GPIOA。",
+                  "tx_port": {
+                    "description": "TX 使用的 GPIO 端口名，例如 GPIOA。",
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "rx_port": {
+                    "description": "RX 使用的 GPIO 端口名，例如 GPIOA。",
                     "type": "string",
                     "minLength": 1
                   },
@@ -311,7 +317,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_10"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOA"
+                              },
+                              "rx_port": {
                                 "const": "GPIOA"
                               }
                             }
@@ -333,7 +342,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_7"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOB"
+                              },
+                              "rx_port": {
                                 "const": "GPIOB"
                               }
                             }
@@ -355,7 +367,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_5"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOA"
+                              },
+                              "rx_port": {
                                 "const": "GPIOA"
                               }
                             }
@@ -377,7 +392,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_4"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOA"
+                              },
+                              "rx_port": {
                                 "const": "GPIOA"
                               }
                             }
@@ -399,8 +417,36 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_9"
                               },
-                              "gpio_port": {
+                              "tx_port": {
                                 "const": "GPIOB"
+                              },
+                              "rx_port": {
+                                "const": "GPIOB"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "remap": {
+                                "const": "GPIO_FullRemap_USART1"
+                              }
+                            }
+                          },
+                          "then": {
+                            "properties": {
+                              "tx_pin": {
+                                "const": "GPIO_Pin_12"
+                              },
+                              "rx_pin": {
+                                "const": "GPIO_Pin_12"
+                              },
+                              "tx_port": {
+                                "const": "GPIOB"
+                              },
+                              "rx_port": {
+                                "const": "GPIOA"
                               }
                             }
                           }
@@ -408,13 +454,14 @@
                       ],
                       "properties": {
                         "remap": {
-                          "description": "USART1 可用重映射宏或 null。当前 schema 仅允许 TX/RX 同端口映射。",
+                          "description": "USART1 可用重映射宏或 null。",
                           "enum": [
                             null,
                             "GPIO_PartialRemap1_USART1",
                             "GPIO_PartialRemap2_USART1",
                             "GPIO_PartialRemap3_USART1",
-                            "GPIO_PartialRemap4_USART1"
+                            "GPIO_PartialRemap4_USART1",
+                            "GPIO_FullRemap_USART1"
                           ]
                         }
                       }
@@ -449,7 +496,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_3"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOA"
+                              },
+                              "rx_port": {
                                 "const": "GPIOA"
                               }
                             }
@@ -471,7 +521,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_12"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOA"
+                              },
+                              "rx_port": {
                                 "const": "GPIOA"
                               }
                             }
@@ -496,7 +549,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_11"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOA"
+                              },
+                              "rx_port": {
                                 "const": "GPIOA"
                               }
                             }
@@ -545,7 +601,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_11"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOB"
+                              },
+                              "rx_port": {
                                 "const": "GPIOB"
                               }
                             }
@@ -567,7 +626,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_0"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOD"
+                              },
+                              "rx_port": {
                                 "const": "GPIOD"
                               }
                             }
@@ -589,7 +651,10 @@
                               "rx_pin": {
                                 "const": "GPIO_Pin_1"
                               },
-                              "gpio_port": {
+                              "tx_port": {
+                                "const": "GPIOD"
+                              },
+                              "rx_port": {
                                 "const": "GPIOD"
                               }
                             }
@@ -619,21 +684,344 @@
                 "then": {
                   "properties": {
                     "USART4": {
+                      "description": "USART4 引脚映射约束：默认映射或 GPIO_Remap_USART4。",
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "remap": {
+                                "const": null
+                              }
+                            }
+                          },
+                          "then": {
+                            "properties": {
+                              "tx_pin": {
+                                "const": "GPIO_Pin_0"
+                              },
+                              "rx_pin": {
+                                "const": "GPIO_Pin_1"
+                              },
+                              "tx_port": {
+                                "const": "GPIOB"
+                              },
+                              "rx_port": {
+                                "const": "GPIOB"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "remap": {
+                                "const": "GPIO_Remap_USART4"
+                              }
+                            }
+                          },
+                          "then": {
+                            "properties": {
+                              "tx_pin": {
+                                "const": "GPIO_Pin_5"
+                              },
+                              "rx_pin": {
+                                "const": "GPIO_Pin_5"
+                              },
+                              "tx_port": {
+                                "const": "GPIOA"
+                              },
+                              "rx_port": {
+                                "const": "GPIOB"
+                              }
+                            }
+                          }
+                        }
+                      ],
                       "properties": {
                         "remap": {
-                          "description": "USART4 当前仅支持默认映射。重映射模式下 TX/RX 分属不同端口，现有 gpio_port 单字段无法准确表达。",
+                          "enum": [
+                            null,
+                            "GPIO_Remap_USART4"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "i2c": {
+          "description": "I2C 配置列表（可选）。字段不存在时表示不启用；若字段存在，至少包含 1 个元素。",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "description": "单个数组项可包含一个或多个 I2Cx 键（I2C1~I2C2）。",
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "patternProperties": {
+              "^I2C[1-2]$": {
+                "description": "单个 I2Cx 的配置对象。",
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "scl_port",
+                  "scl_pin",
+                  "sda_port",
+                  "sda_pin",
+                  "smba_port",
+                  "smba_pin",
+                  "clock_speed_khz",
+                  "mode",
+                  "duty_cycle",
+                  "own_address",
+                  "ack",
+                  "acknowledged_address",
+                  "remap"
+                ],
+                "properties": {
+                  "scl_port": {
+                    "description": "I2C SCL 使用的 GPIO 端口名。",
+                    "type": "string",
+                    "enum": [
+                      "GPIOA",
+                      "GPIOB"
+                    ]
+                  },
+                  "scl_pin": {
+                    "description": "I2C SCL 引脚宏。",
+                    "type": "string",
+                    "enum": [
+                      "GPIO_Pin_6",
+                      "GPIO_Pin_9",
+                      "GPIO_Pin_10",
+                      "GPIO_Pin_13"
+                    ]
+                  },
+                  "sda_port": {
+                    "description": "I2C SDA 使用的 GPIO 端口名。",
+                    "type": "string",
+                    "enum": [
+                      "GPIOA",
+                      "GPIOB"
+                    ]
+                  },
+                  "sda_pin": {
+                    "description": "I2C SDA 引脚宏。",
+                    "type": "string",
+                    "enum": [
+                      "GPIO_Pin_7",
+                      "GPIO_Pin_11",
+                      "GPIO_Pin_12"
+                    ]
+                  },
+                  "smba_port": {
+                    "description": "I2C SMBA 使用的 GPIO 端口名。",
+                    "type": "string",
+                    "enum": [
+                      "GPIOB"
+                    ]
+                  },
+                  "smba_pin": {
+                    "description": "I2C SMBA 引脚宏。",
+                    "type": "string",
+                    "enum": [
+                      "GPIO_Pin_5",
+                      "GPIO_Pin_12"
+                    ]
+                  },
+                  "clock_speed_khz": {
+                    "description": "I2C 时钟（kHz），支持标准模式/快速模式。",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 400
+                  },
+                  "mode": {
+                    "description": "I2C 工作模式。",
+                    "type": "string",
+                    "enum": [
+                      "I2C_Mode_I2C",
+                      "I2C_Mode_SMBusDevice",
+                      "I2C_Mode_SMBusHost"
+                    ]
+                  },
+                  "duty_cycle": {
+                    "description": "快速模式占空比。",
+                    "type": "string",
+                    "enum": [
+                      "I2C_DutyCycle_2",
+                      "I2C_DutyCycle_16_9"
+                    ]
+                  },
+                  "own_address": {
+                    "description": "本机地址，十六进制字符串。",
+                    "type": "string",
+                    "pattern": "^0x[0-9A-Fa-f]{1,4}$"
+                  },
+                  "ack": {
+                    "description": "是否启用 ACK。",
+                    "type": "boolean"
+                  },
+                  "acknowledged_address": {
+                    "description": "地址位宽：7 或 10。",
+                    "type": "integer",
+                    "enum": [
+                      7,
+                      10
+                    ]
+                  },
+                  "remap": {
+                    "description": "I2C 引脚重映射宏；null 表示默认映射。",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "I2C1"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "I2C1": {
+                      "description": "I2C1 引脚映射约束：按 remap 联动限制 SCL/SDA；SMBA 恒为 PB5。",
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "remap": {
+                                "const": null
+                              }
+                            }
+                          },
+                          "then": {
+                            "properties": {
+                              "scl_port": {
+                                "const": "GPIOB"
+                              },
+                              "scl_pin": {
+                                "const": "GPIO_Pin_6"
+                              },
+                              "sda_port": {
+                                "const": "GPIOB"
+                              },
+                              "sda_pin": {
+                                "const": "GPIO_Pin_7"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "remap": {
+                                "const": "GPIO_PartialRemap1_I2C1"
+                              }
+                            }
+                          },
+                          "then": {
+                            "properties": {
+                              "scl_port": {
+                                "const": "GPIOA"
+                              },
+                              "scl_pin": {
+                                "const": "GPIO_Pin_13"
+                              },
+                              "sda_port": {
+                                "const": "GPIOA"
+                              },
+                              "sda_pin": {
+                                "const": "GPIO_Pin_12"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "remap": {
+                                "const": "GPIO_FullRemap_I2C1"
+                              }
+                            }
+                          },
+                          "then": {
+                            "properties": {
+                              "scl_port": {
+                                "const": "GPIOB"
+                              },
+                              "scl_pin": {
+                                "const": "GPIO_Pin_9"
+                              },
+                              "sda_port": {
+                                "const": "GPIOB"
+                              },
+                              "sda_pin": {
+                                "const": "GPIO_Pin_11"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "properties": {
+                        "smba_port": {
+                          "const": "GPIOB"
+                        },
+                        "smba_pin": {
+                          "const": "GPIO_Pin_5"
+                        },
+                        "remap": {
+                          "enum": [
+                            null,
+                            "GPIO_PartialRemap1_I2C1",
+                            "GPIO_FullRemap_I2C1"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "required": [
+                    "I2C2"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "I2C2": {
+                      "description": "I2C2 当前仅支持默认映射（SCL/PB10，SDA/PB11，SMBA/PB12）。",
+                      "properties": {
+                        "scl_port": {
+                          "const": "GPIOB"
+                        },
+                        "scl_pin": {
+                          "const": "GPIO_Pin_10"
+                        },
+                        "sda_port": {
+                          "const": "GPIOB"
+                        },
+                        "sda_pin": {
+                          "const": "GPIO_Pin_11"
+                        },
+                        "smba_port": {
+                          "const": "GPIOB"
+                        },
+                        "smba_pin": {
+                          "const": "GPIO_Pin_12"
+                        },
+                        "remap": {
                           "enum": [
                             null
                           ]
-                        },
-                        "tx_pin": {
-                          "const": "GPIO_Pin_0"
-                        },
-                        "rx_pin": {
-                          "const": "GPIO_Pin_1"
-                        },
-                        "gpio_port": {
-                          "const": "GPIOB"
                         }
                       }
                     }
