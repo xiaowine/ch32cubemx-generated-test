@@ -8,6 +8,9 @@ void {{ usart_name | replace(from="USART", to="UART") }}_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure = {0};
     USART_InitTypeDef USART_InitStructure = {0};
+{%- if cfg.irq | length > 0 %}
+    NVIC_InitTypeDef NVIC_InitStructure = {0};
+{%- endif %}
 {%- if cfg.remap %}
     GPIO_PinRemapConfig({{ cfg.remap }}, ENABLE);
 {%- endif %}
@@ -85,7 +88,47 @@ void {{ usart_name | replace(from="USART", to="UART") }}_Init(void)
 {%- endif %}
     USART_Init({{ usart_name }}, &USART_InitStructure);
     USART_Cmd({{ usart_name }}, ENABLE);
+{%- if cfg.irq | length > 0 %}
+{%- for irq_event in cfg.irq %}
+    USART_ITConfig({{ usart_name }}, {{ irq_event }}, ENABLE);
+{%- endfor %}
+    NVIC_InitStructure.NVIC_IRQChannel = {{ usart_name }}_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+{%- endif %}
 }
+{%- if cfg.irq | length > 0 %}
+
+__attribute__((interrupt("WCH-Interrupt-fast"))) void {{ usart_name }}_IRQHandler(void)
+{
+{%- for irq_event in cfg.irq %}
+    if(USART_GetITStatus({{ usart_name }}, {{ irq_event }}) != RESET)
+    {
+{%- if irq_event == "USART_IT_RXNE" %}
+        volatile uint16_t data = USART_ReceiveData({{ usart_name }});
+        (void)data;
+{%- elif irq_event == "USART_IT_IDLE" or irq_event == "USART_IT_PE" or irq_event == "USART_IT_ERR" %}
+        volatile uint16_t stat = {{ usart_name }}->STATR;
+        volatile uint16_t data = {{ usart_name }}->DATAR;
+        (void)stat;
+        (void)data;
+{%- elif irq_event == "USART_IT_TXE" %}
+        /* TXE is cleared by writing DATAR; keep user logic in USER CODE section. */
+{%- elif irq_event == "USART_IT_TC" or irq_event == "USART_IT_LBD" %}
+        USART_ClearITPendingBit({{ usart_name }}, {{ irq_event }});
+{%- endif %}
+        /* USER CODE BEGIN {{ usart_name }}_IRQn_{{ loop.index0 }} */
+
+        /* USER CODE END {{ usart_name }}_IRQn_{{ loop.index0 }} */
+    }
+{%- endfor %}
+    /* USER CODE BEGIN {{ usart_name }}_IRQn 1 */
+
+    /* USER CODE END {{ usart_name }}_IRQn 1 */
+}
+{%- endif %}
 
 {%- endfor %}
 {%- endfor %}

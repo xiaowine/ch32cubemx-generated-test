@@ -194,7 +194,8 @@
                   "stop_bits",
                   "parity",
                   "hardware_flow_control",
-                  "remap"
+                  "remap",
+                  "irq"
                 ],
                 "properties": {
                   "tx_pin": {
@@ -269,6 +270,23 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "irq": {
+                    "description": "USART 中断事件列表（严格按 USART_ITConfig 注释支持项）。空列表表示不启用中断。",
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "USART_IT_PE",
+                        "USART_IT_TXE",
+                        "USART_IT_TC",
+                        "USART_IT_RXNE",
+                        "USART_IT_IDLE",
+                        "USART_IT_LBD",
+                        "USART_IT_ERR"
+                      ]
+                    }
                   }
                 },
                 "anyOf": [
@@ -779,7 +797,9 @@
                   "own_address",
                   "ack",
                   "acknowledged_address",
-                  "remap"
+                  "remap",
+                  "irq",
+                  "error_event"
                 ],
                 "properties": {
                   "scl_port": {
@@ -878,6 +898,42 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "irq": {
+                    "description": "I2C 事件中断列表（EV IRQ）。空列表表示不启用。",
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "I2C_IT_BUF",
+                        "I2C_IT_EVT",
+                        "I2C_IT_TXE",
+                        "I2C_IT_RXNE",
+                        "I2C_IT_STOPF",
+                        "I2C_IT_ADD10",
+                        "I2C_IT_BTF",
+                        "I2C_IT_ADDR",
+                        "I2C_IT_SB"
+                      ]
+                    }
+                  },
+                  "error_event": {
+                    "description": "I2C 错误中断事件列表（ER IRQ）。空列表表示不启用。",
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "I2C_IT_SMBALERT",
+                        "I2C_IT_TIMEOUT",
+                        "I2C_IT_PECERR",
+                        "I2C_IT_OVR",
+                        "I2C_IT_AF",
+                        "I2C_IT_ARLO",
+                        "I2C_IT_BERR"
+                      ]
+                    }
                   }
                 }
               }

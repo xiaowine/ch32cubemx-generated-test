@@ -8,6 +8,9 @@ void {{ i2c_name }}_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure = {0};
     I2C_InitTypeDef I2C_InitStructure = {0};
+{%- if cfg.irq | length > 0 or cfg.error_event | length > 0 %}
+    NVIC_InitTypeDef NVIC_InitStructure = {0};
+{%- endif %}
     RCC_PB1PeriphClockCmd(RCC_PB1Periph_{{ i2c_name }}, ENABLE);
     RCC_PB2PeriphClockCmd(RCC_PB2Periph_{{ cfg.scl_port }}, ENABLE);
 {%- if cfg.sda_port != cfg.scl_port %}
@@ -47,7 +50,87 @@ void {{ i2c_name }}_Init(void)
 {%- endif %}
     I2C_Init({{ i2c_name }}, &I2C_InitStructure);
     I2C_Cmd({{ i2c_name }}, ENABLE);
+{%- set need_buf = "I2C_IT_BUF" in cfg.irq or "I2C_IT_TXE" in cfg.irq or "I2C_IT_RXNE" in cfg.irq %}
+{%- set need_evt = "I2C_IT_EVT" in cfg.irq or "I2C_IT_STOPF" in cfg.irq or "I2C_IT_ADD10" in cfg.irq or "I2C_IT_BTF" in cfg.irq or "I2C_IT_ADDR" in cfg.irq or "I2C_IT_SB" in cfg.irq %}
+{%- set need_err = cfg.error_event | length > 0 %}
+{%- if need_buf or need_evt or need_err %}
+    I2C_ITConfig({{ i2c_name }}, {% if need_buf %}I2C_IT_BUF{% endif %}{% if need_buf and (need_evt or need_err) %} | {% endif %}{% if need_evt %}I2C_IT_EVT{% endif %}{% if need_evt and need_err %} | {% endif %}{% if need_err %}I2C_IT_ERR{% endif %}, ENABLE);
+{%- endif %}
+{%- if cfg.irq | length > 0 %}
+    NVIC_InitStructure.NVIC_IRQChannel = {{ i2c_name }}_EV_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+{%- endif %}
+{%- if cfg.error_event | length > 0 %}
+    NVIC_InitStructure.NVIC_IRQChannel = {{ i2c_name }}_ER_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+{%- endif %}
 }
+
+{%- if cfg.irq | length > 0 %}
+
+__attribute__((interrupt("WCH-Interrupt-fast"))) void {{ i2c_name }}_EV_IRQHandler(void)
+{
+{%- for ev in cfg.irq %}
+    if(I2C_GetITStatus({{ i2c_name }}, {{ ev }}) != RESET)
+    {
+{%- if ev == "I2C_IT_RXNE" %}
+        /* RXNE can be cleared by reading DATAR. */
+        volatile uint8_t data = I2C_ReceiveData({{ i2c_name }});
+        (void)data;
+{%- elif ev == "I2C_IT_ADDR" %}
+        /* ADDR is cleared by reading STAR1 then STAR2. */
+        volatile uint16_t star1 = {{ i2c_name }}->STAR1;
+        volatile uint16_t star2 = {{ i2c_name }}->STAR2;
+        (void)star1;
+        (void)star2;
+{%- elif ev == "I2C_IT_STOPF" %}
+        /* STOPF is cleared by reading STAR1 then writing CTLR1 (re-enable). */
+        volatile uint16_t star1 = {{ i2c_name }}->STAR1;
+        (void)star1;
+        I2C_Cmd({{ i2c_name }}, ENABLE);
+{%- elif ev == "I2C_IT_SB" or ev == "I2C_IT_ADD10" or ev == "I2C_IT_BTF" or ev == "I2C_IT_TXE" %}
+        /*
+         * These events are cleared as part of transfer actions:
+         * SB    -> read STAR1 then write DATAR (address)
+         * ADD10 -> read STAR1 then write DATAR (2nd address byte)
+         * BTF   -> read/write DATAR depending on direction
+         * TXE   -> write DATAR
+         */
+{%- endif %}
+        /* USER CODE BEGIN {{ i2c_name }}_EV_IRQn_{{ loop.index0 }} */
+
+        /* USER CODE END {{ i2c_name }}_EV_IRQn_{{ loop.index0 }} */
+    }
+{%- endfor %}
+    /* USER CODE BEGIN {{ i2c_name }}_EV_IRQn */
+
+    /* USER CODE END {{ i2c_name }}_EV_IRQn */
+}
+{%- endif %}
+{%- if cfg.error_event | length > 0 %}
+
+__attribute__((interrupt("WCH-Interrupt-fast"))) void {{ i2c_name }}_ER_IRQHandler(void)
+{
+{%- for err in cfg.error_event %}
+    if(I2C_GetITStatus({{ i2c_name }}, {{ err }}) != RESET)
+    {
+        I2C_ClearITPendingBit({{ i2c_name }}, {{ err }});
+        /* USER CODE BEGIN {{ i2c_name }}_ER_IRQn_{{ loop.index0 }} */
+
+        /* USER CODE END {{ i2c_name }}_ER_IRQn_{{ loop.index0 }} */
+    }
+{%- endfor %}
+    /* USER CODE BEGIN {{ i2c_name }}_ER_IRQn */
+
+    /* USER CODE END {{ i2c_name }}_ER_IRQn */
+}
+{%- endif %}
 
 {%- endfor -%}
 {%- endfor -%}
