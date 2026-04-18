@@ -194,8 +194,7 @@
                   "stop_bits",
                   "parity",
                   "hardware_flow_control",
-                  "remap",
-                  "irq"
+                  "remap"
                 ],
                 "properties": {
                   "tx_pin": {
@@ -797,9 +796,7 @@
                   "own_address",
                   "ack",
                   "acknowledged_address",
-                  "remap",
-                  "irq",
-                  "error_event"
+                  "remap"
                 ],
                 "properties": {
                   "scl_port": {

@@ -4,7 +4,7 @@
 {% if usart is defined and usart | length > 0 -%}
 {%- for usart_item in usart -%}
 {%- for usart_name, cfg in usart_item -%}
-void {{ usart_name | replace(from="USART", to="UART") }}_Init(void);
+void {{ usart_name }}_Init(void);
 {%- endfor %}
 {%- endfor %}
 {%- endif %}

@@ -31,16 +31,7 @@
             "cts": false,
             "rts": false
           },
-          "remap": null,
-          "irq": [
-            "USART_IT_PE",
-            "USART_IT_TXE",
-            "USART_IT_TC",
-            "USART_IT_RXNE",
-            "USART_IT_IDLE",
-            "USART_IT_LBD",
-            "USART_IT_ERR"
-          ]
+          "remap": null
         }
       }
     ],
@@ -59,27 +50,7 @@
           "own_address": "0x00",
           "ack": true,
           "acknowledged_address": 7,
-          "remap": null,
-          "irq": [
-            "I2C_IT_BUF",
-            "I2C_IT_EVT",
-            "I2C_IT_TXE",
-            "I2C_IT_RXNE",
-            "I2C_IT_STOPF",
-            "I2C_IT_ADD10",
-            "I2C_IT_BTF",
-            "I2C_IT_ADDR",
-            "I2C_IT_SB"
-          ],
-          "error_event": [
-            "I2C_IT_SMBALERT",
-            "I2C_IT_TIMEOUT",
-            "I2C_IT_PECERR",
-            "I2C_IT_OVR",
-            "I2C_IT_AF",
-            "I2C_IT_ARLO",
-            "I2C_IT_BERR"
-          ]
+          "remap": null
         }
       }
     ]

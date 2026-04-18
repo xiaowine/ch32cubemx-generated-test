@@ -41,7 +41,7 @@ int main(void)
 {%- if usart is defined and usart | length > 0 %}
 {%- for usart_item in usart %}
 {%- for usart_name, cfg in usart_item %}
-    {{ usart_name | replace(from="USART", to="UART") }}_Init();
+    {{ usart_name }}_Init();
 {%- endfor %}
 {%- endfor %}
 {%- endif %}
