@@ -9,7 +9,65 @@ use std::path::Path;
 pub struct SpecDoc {
     #[serde(default)]
     pub contexts: HashMap<String, Value>,
-    pub entries: Vec<String>,
+    pub entries: Vec<SpecEntry>,
+}
+
+/// 模板条目：兼容旧格式（字符串）和新格式（带条件对象）。
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum SpecEntry {
+    Path(String),
+    Rule {
+        template: String,
+        #[serde(default)]
+        when: Option<String>,
+    },
+}
+
+impl SpecEntry {
+    pub fn template_name(&self) -> &str {
+        match self {
+            Self::Path(path) => path,
+            Self::Rule { template, .. } => template,
+        }
+    }
+
+    pub fn should_render(&self, context: &Value) -> Result<bool, String> {
+        let when = match self {
+            Self::Path(_) => return Ok(true),
+            Self::Rule { when, .. } => when.as_deref(),
+        };
+
+        let Some(path) = when else {
+            return Ok(true);
+        };
+
+        let value = get_value_by_path(context, path);
+        Ok(is_truthy(value))
+    }
+}
+
+fn get_value_by_path<'a>(root: &'a Value, path: &str) -> Option<&'a Value> {
+    let mut current = root;
+    for segment in path.split('.') {
+        let obj = current.as_object()?;
+        current = obj.get(segment)?;
+    }
+    Some(current)
+}
+
+fn is_truthy(value: Option<&Value>) -> bool {
+    let Some(v) = value else {
+        return false;
+    };
+    match v {
+        Value::Null => false,
+        Value::Bool(b) => *b,
+        Value::Number(n) => n.as_i64().map(|x| x != 0).unwrap_or(true),
+        Value::String(s) => !s.trim().is_empty(),
+        Value::Array(arr) => !arr.is_empty(),
+        Value::Object(obj) => !obj.is_empty(),
+    }
 }
 
 /// 运行时文件：描述当前要构建的型号和动态上下文。

@@ -22,7 +22,7 @@
           "tx_pin": "GPIO_Pin_9",
           "rx_pin": "GPIO_Pin_10",
           "gpio_port": "GPIOA",
-          "baud_rate": 115200,
+          "baud_rate": 2000000,
           "word_length": 8,
           "stop_bits": 1,
           "parity": null,

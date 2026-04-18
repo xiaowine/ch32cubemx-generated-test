@@ -37,6 +37,9 @@ set(USER_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/main.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/{{ mcu_series }}_it.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/system.c"
+{%- if usart is defined and usart | length > 0 %}
+        "${CMAKE_CURRENT_SOURCE_DIR}/User/Src/usart.c"
+{%- endif %}
 )
 
 add_executable(${PROJECT_NAME})

@@ -1,4 +1,5 @@
 use crate::user_code::merge_user_code_sections;
+use crate::spec::SpecEntry;
 use serde_json::Value;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -110,13 +111,36 @@ pub fn render_templates_from_entries(
     res_dir: &Path,
     output_root: &Path,
     model_name: &str,
-    entries: &[String],
+    entries: &[SpecEntry],
     context_value: &Value,
 ) -> Result<(), String> {
     for entry in entries {
-        render_one_template(res_dir, output_root, model_name, entry, context_value)?;
+        if !entry.should_render(context_value)? {
+            let (_, out_path) = resolve_template_and_output_paths(
+                res_dir,
+                output_root,
+                model_name,
+                entry.template_name(),
+            )?;
+            if out_path.exists() {
+                fs::remove_file(&out_path).map_err(|e| {
+                    format!(
+                        "Failed to remove skipped output file {}: {}",
+                        out_path.display(),
+                        e
+                    )
+                })?;
+            }
+            continue;
+        }
+        render_one_template(
+            res_dir,
+            output_root,
+            model_name,
+            entry.template_name(),
+            context_value,
+        )?;
     }
 
     Ok(())
 }
-

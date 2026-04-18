@@ -1,169 +1,270 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "CH32L103 运行时配置文件 Schema（Draft-07）。",
+  "description": "CH32L103 运行时配置 Schema（Draft-07）。",
+  "type": "object",
   "additionalProperties": false,
+  "required": [
+    "model_name",
+    "contexts"
+  ],
   "properties": {
+    "model_name": {
+      "description": "目标型号名称，固定为 ch32l103。",
+      "type": "string",
+      "const": "ch32l103"
+    },
     "contexts": {
       "description": "运行时上下文配置集合。",
+      "type": "object",
       "additionalProperties": false,
+      "required": [
+        "mcu",
+        "clock",
+        "linker"
+      ],
       "properties": {
-        "clock": {
-          "description": "时钟相关配置。",
+        "mcu": {
+          "description": "芯片工程与启动文件配置。",
+          "type": "object",
           "additionalProperties": false,
-          "allOf": [
-            {
-              "if": {
-                "properties": {
-                  "clock_source": {
-                    "const": "HSE"
-                  }
-                },
-                "required": [
-                  "clock_source"
-                ]
-              },
-              "then": {
-                "properties": {
-                  "pll_mul": {
-                    "maximum": 16
-                  },
-                  "pll_source": {
-                    "enum": [
-                      "RCC_PLLSource_HSE_Div1",
-                      "RCC_PLLSource_HSE_Div2"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "if": {
-                "properties": {
-                  "clock_source": {
-                    "const": "HSI"
-                  }
-                },
-                "required": [
-                  "clock_source"
-                ]
-              },
-              "then": {
-                "properties": {
-                  "pll_mul": {
-                    "maximum": 12
-                  },
-                  "pll_source": {
-                    "const": "RCC_PLLSource_HSI_Div2"
-                  }
-                }
-              }
-            }
+          "required": [
+            "project_name",
+            "startup_file"
           ],
           "properties": {
-            "clock_source": {
-              "description": "系统时钟源：HSE 或 HSI。",
+            "project_name": {
+              "description": "工程名称。",
+              "type": "string",
+              "minLength": 2
+            },
+            "startup_file": {
+              "description": "启动汇编文件名（枚举锁定）。",
+              "type": "string",
               "enum": [
-                "HSE",
-                "HSI"
-              ],
-              "type": "string"
-            },
-            "hse_freq_mhz": {
-              "description": "外部高速晶振频率（MHz）。",
-              "minimum": 3,
-              "maximum": 25,
-              "type": "integer"
-            },
-            "pll_mul": {
-              "description": "PLL 倍频系数。",
-              "minimum": 1,
-              "type": "integer"
-            },
-            "pll_source": {
-              "description": "PLL 输入源配置宏。",
-              "enum": [
-                "RCC_PLLSource_HSE_Div1",
-                "RCC_PLLSource_HSE_Div2",
-                "RCC_PLLSource_HSI_Div2"
-              ],
-              "type": "string"
+                "startup_ch32l103.S"
+              ]
             }
-          },
+          }
+        },
+        "clock": {
+          "description": "时钟配置。",
+          "type": "object",
+          "additionalProperties": false,
           "required": [
             "clock_source",
             "pll_source",
             "hse_freq_mhz",
             "pll_mul"
           ],
-          "type": "object"
+          "properties": {
+            "clock_source": {
+              "description": "系统时钟源：HSE 或 HSI。",
+              "type": "string",
+              "enum": [
+                "HSE",
+                "HSI"
+              ]
+            },
+            "pll_source": {
+              "description": "PLL 输入源配置宏。",
+              "type": "string",
+              "enum": [
+                "RCC_PLLSource_HSE_Div1",
+                "RCC_PLLSource_HSE_Div2",
+                "RCC_PLLSource_HSI_Div2"
+              ]
+            },
+            "hse_freq_mhz": {
+              "description": "外部高速晶振频率（MHz）。",
+              "type": "integer",
+              "minimum": 3,
+              "maximum": 25
+            },
+            "pll_mul": {
+              "description": "PLL 倍频系数。最小值 1；当时钟源为 HSE 时最大 16，当时钟源为 HSI 时最大 12。",
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "required": [
+                  "clock_source"
+                ],
+                "properties": {
+                  "clock_source": {
+                    "const": "HSE"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "pll_source": {
+                    "enum": [
+                      "RCC_PLLSource_HSE_Div1",
+                      "RCC_PLLSource_HSE_Div2"
+                    ]
+                  },
+                  "pll_mul": {
+                    "maximum": 16
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "required": [
+                  "clock_source"
+                ],
+                "properties": {
+                  "clock_source": {
+                    "const": "HSI"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "pll_source": {
+                    "const": "RCC_PLLSource_HSI_Div2"
+                  },
+                  "pll_mul": {
+                    "maximum": 12
+                  }
+                }
+              }
+            }
+          ]
         },
         "linker": {
           "description": "链接脚本相关配置。",
+          "type": "object",
           "additionalProperties": false,
-          "properties": {
-            "flash_size": {
-              "description": "Flash 大小（KB）。",
-              "enum": [
-                32,
-                64
-              ],
-              "type": "integer"
-            },
-            "ram_size": {
-              "description": "RAM 大小（KB）。",
-              "enum": [
-                10,
-                20
-              ],
-              "type": "integer"
-            },
-            "stack_size": {
-              "description": "栈大小（字节）。",
-              "minimum": 128,
-              "maximum": 8192,
-              "type": "integer"
-            }
-          },
           "required": [
             "flash_size",
             "ram_size",
             "stack_size"
           ],
-          "type": "object"
-        },
-        "mcu": {
-          "description": "芯片与启动文件配置。",
-          "additionalProperties": false,
           "properties": {
-            "project_name": {
-              "description": "工程名称。",
-              "minLength": 2,
-              "type": "string"
-            },
-            "startup_file": {
-              "description": "启动汇编文件名（枚举锁定）。",
+            "flash_size": {
+              "description": "Flash 大小（KB）。",
+              "type": "integer",
               "enum": [
-                "startup_ch32l103.S"
-              ],
-              "type": "string"
+                32,
+                64
+              ]
+            },
+            "ram_size": {
+              "description": "RAM 大小（KB）。",
+              "type": "integer",
+              "enum": [
+                10,
+                20
+              ]
+            },
+            "stack_size": {
+              "description": "栈大小（字节）。",
+              "type": "integer",
+              "minimum": 128,
+              "maximum": 8192
             }
-          },
-          "required": [
-            "project_name",
-            "startup_file"
-          ],
-          "type": "object"
+          }
         },
         "usart": {
-          "description": "USART 配置列表（可选）。",
+          "description": "USART 配置列表（可选）。字段不存在时表示不启用；若字段存在，至少包含 1 个元素。",
+          "type": "array",
+          "minItems": 1,
           "items": {
-            "description": "USART 槽位配置项（允许多个 USARTx 键）。",
+            "description": "单个数组项可包含一个或多个 USARTx 键（USART1~USART4）。",
+            "type": "object",
             "additionalProperties": false,
             "minProperties": 1,
             "patternProperties": {
               "^USART[1-4]$": {
-                "description": "USART1~USART4 的配置对象。",
+                "description": "单个 USARTx 的配置对象。",
+                "type": "object",
                 "additionalProperties": false,
+                "required": [
+                  "tx_pin",
+                  "rx_pin",
+                  "gpio_port",
+                  "baud_rate",
+                  "word_length",
+                  "stop_bits",
+                  "parity",
+                  "hardware_flow_control",
+                  "remap"
+                ],
+                "properties": {
+                  "tx_pin": {
+                    "description": "发送引脚；null 表示不使用发送。",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "rx_pin": {
+                    "description": "接收引脚；null 表示不使用接收。",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "gpio_port": {
+                    "description": "GPIO 端口名，例如 GPIOA。",
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "baud_rate": {
+                    "description": "波特率（bps）。",
+                    "type": "integer",
+                    "minimum": 46,
+                    "maximum": 6000000
+                  },
+                  "word_length": {
+                    "description": "字长配置。",
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "stop_bits": {
+                    "description": "停止位配置。",
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "parity": {
+                    "description": "校验位配置；null 表示不启用。",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "hardware_flow_control": {
+                    "description": "硬件流控开关。",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "cts",
+                      "rts"
+                    ],
+                    "properties": {
+                      "cts": {
+                        "description": "是否启用 CTS。",
+                        "type": "boolean"
+                      },
+                      "rts": {
+                        "description": "是否启用 RTS。",
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "remap": {
+                    "description": "引脚重映射宏；null 表示不重映射。",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
                 "anyOf": [
                   {
                     "properties": {
@@ -179,89 +280,7 @@
                       }
                     }
                   }
-                ],
-                "properties": {
-                  "baud_rate": {
-                    "description": "波特率。",
-                    "minimum": 46,
-                    "maximum": 6000000,
-                    "type": "integer"
-                  },
-                  "gpio_port": {
-                    "description": "GPIO 端口名，例如 GPIOA。",
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "hardware_flow_control": {
-                    "description": "硬件流控开关。",
-                    "additionalProperties": false,
-                    "properties": {
-                      "cts": {
-                        "description": "是否启用 CTS。",
-                        "type": "boolean"
-                      },
-                      "rts": {
-                        "description": "是否启用 RTS。",
-                        "type": "boolean"
-                      }
-                    },
-                    "required": [
-                      "cts",
-                      "rts"
-                    ],
-                    "type": "object"
-                  },
-                  "parity": {
-                    "description": "校验位配置，null 表示不启用。",
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "remap": {
-                    "description": "引脚重映射配置，null 表示不重映射。",
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "stop_bits": {
-                    "description": "停止位配置。",
-                    "minimum": 1,
-                    "type": "integer"
-                  },
-                  "tx_pin": {
-                    "description": "发送引脚，null 表示不使用发送。",
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "rx_pin": {
-                    "description": "接收引脚，null 表示不使用接收。",
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "word_length": {
-                    "description": "字长配置。",
-                    "minimum": 1,
-                    "type": "integer"
-                  }
-                },
-                "required": [
-                  "tx_pin",
-                  "rx_pin",
-                  "gpio_port",
-                  "baud_rate",
-                  "word_length",
-                  "stop_bits",
-                  "parity",
-                  "hardware_flow_control",
-                  "remap"
-                ],
-                "type": "object"
+                ]
               }
             },
             "dependencies": {
@@ -332,28 +351,10 @@
                   }
                 }
               }
-            },
-            "type": "object"
-          },
-          "type": "array"
+            }
+          }
         }
-      },
-      "required": [
-        "mcu",
-        "clock",
-        "linker"
-      ],
-      "type": "object"
-    },
-    "model_name": {
-      "description": "目标型号名称。",
-      "const": "ch32l103",
-      "type": "string"
+      }
     }
-  },
-  "required": [
-    "model_name",
-    "contexts"
-  ],
-  "type": "object"
+  }
 }

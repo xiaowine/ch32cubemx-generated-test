@@ -11,6 +11,14 @@
     "global/User/Src/main.c.tera",
     "global/CMakeLists.txt.tera",
     "ch32v20x/Platform/Link.ld.tera",
-    "ch32v20x/User/Src/system.c.tera"
+    "ch32v20x/User/Src/system.c.tera",
+    {
+      "template": "global/User/Inc/usart.h.tera",
+      "when": "usart"
+    },
+    {
+      "template": "global/User/Src/usart.c.tera",
+      "when": "usart"
+    }
   ]
 }

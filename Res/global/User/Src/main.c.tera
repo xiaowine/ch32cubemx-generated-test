@@ -1,4 +1,7 @@
 #include "{{ mcu_series }}.h"
+{% if usart is defined and usart | length > 0 -%}
+#include "usart.h"
+{% endif -%}
 
 /* USER CODE BEGIN Includes */
 
@@ -32,7 +35,13 @@ int main(void)
     SystemClockConfig();
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
     Delay_Init();
-    USART_Printf_Init(2000000);
+{%- if usart is defined and usart | length > 0 %}
+{%- for usart_item in usart %}
+{%- for usart_name, cfg in usart_item %}
+    {{ usart_name | replace(from="USART", to="UART") }}_UART_Init();
+{%- endfor %}
+{%- endfor %}
+{%- endif %}
     printf("SystemClk:%ld\r\n", SystemCoreClock);
 
     /* USER CODE BEGIN 2 */
