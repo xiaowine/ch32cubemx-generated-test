@@ -287,16 +287,128 @@
               "USART1": {
                 "properties": {
                   "USART1": {
+                    "description": "USART1 引脚映射约束：按 remap 联动限制 TX/RX 与端口。",
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": null
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_9"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_10"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOA"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": "GPIO_PartialRemap1_USART1"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_6"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_7"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOB"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": "GPIO_PartialRemap2_USART1"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_4"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_5"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOA"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": "GPIO_PartialRemap3_USART1"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_5"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_4"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOA"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": "GPIO_PartialRemap4_USART1"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_11"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_9"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOB"
+                            }
+                          }
+                        }
+                      }
+                    ],
                     "properties": {
                       "remap": {
-                        "description": "USART1 可用重映射宏或 null。",
+                        "description": "USART1 可用重映射宏或 null。当前 schema 仅允许 TX/RX 同端口映射。",
                         "enum": [
                           null,
                           "GPIO_PartialRemap1_USART1",
                           "GPIO_PartialRemap2_USART1",
                           "GPIO_PartialRemap3_USART1",
-                          "GPIO_PartialRemap4_USART1",
-                          "GPIO_FullRemap_USART1"
+                          "GPIO_PartialRemap4_USART1"
                         ]
                       }
                     }
@@ -306,6 +418,78 @@
               "USART2": {
                 "properties": {
                   "USART2": {
+                    "description": "USART2 引脚映射约束：按 remap 联动限制 TX/RX 与端口。",
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": null
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_2"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_3"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOA"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": "GPIO_PartialRemap1_USART2"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_11"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_12"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOA"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "enum": [
+                                "GPIO_PartialRemap2_USART2",
+                                "GPIO_FullRemap_USART2"
+                              ]
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_12"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_11"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOA"
+                            }
+                          }
+                        }
+                      }
+                    ],
                     "properties": {
                       "remap": {
                         "description": "USART2 可用重映射宏或 null。",
@@ -323,6 +507,75 @@
               "USART3": {
                 "properties": {
                   "USART3": {
+                    "description": "USART3 引脚映射约束：按 remap 联动限制 TX/RX 与端口。",
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": null
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_10"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_11"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOB"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": "GPIO_PartialRemap_USART3"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_1"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_0"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOD"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "remap": {
+                              "const": "GPIO_FullRemap_USART3"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "tx_pin": {
+                              "const": "GPIO_Pin_0"
+                            },
+                            "rx_pin": {
+                              "const": "GPIO_Pin_1"
+                            },
+                            "gpio_port": {
+                              "const": "GPIOD"
+                            }
+                          }
+                        }
+                      }
+                    ],
                     "properties": {
                       "remap": {
                         "description": "USART3 可用重映射宏或 null。",
@@ -341,11 +594,19 @@
                   "USART4": {
                     "properties": {
                       "remap": {
-                        "description": "USART4 可用重映射宏或 null。",
+                        "description": "USART4 当前仅支持默认映射。重映射模式下 TX/RX 分属不同端口，现有 gpio_port 单字段无法准确表达。",
                         "enum": [
-                          null,
-                          "GPIO_Remap_USART4"
+                          null
                         ]
+                      },
+                      "tx_pin": {
+                        "const": "GPIO_Pin_0"
+                      },
+                      "rx_pin": {
+                        "const": "GPIO_Pin_1"
+                      },
+                      "gpio_port": {
+                        "const": "GPIOB"
                       }
                     }
                   }
